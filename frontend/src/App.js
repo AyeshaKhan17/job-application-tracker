@@ -1,8 +1,14 @@
+import React from "react";
+import JobForm from "./components/JobForm";
+import JobList from "./components/JobList";
+
 function App() {
   return (
-    <div>
+    <div style={{ padding: "40px" }}>
       <h1>Job Application Tracker</h1>
-      <p>Track all your job applications in one place.</p>
+      <JobForm />
+      <hr />
+      <JobList />
     </div>
   );
 }

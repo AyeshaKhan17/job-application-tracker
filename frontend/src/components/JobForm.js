@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-function JobForm() {
+function JobForm({ onJobAdded }) {
     const [company, setCompany] = useState("");
-    const [position, setPosition] = useState("");
+    const [role, setRole] = useState("");
     const [status, setStatus] = useState("Applied");
 
     const handleSubmit = async (e) => {
@@ -11,16 +11,18 @@ function JobForm() {
 
         const jobData = {
             company,
-            position,
+            role,
             status
         };
 
         try {
-            await axios.post("http://localhost:5000/api/jobs", jobData);
+            await axios.post("http://localhost:5000/jobs", jobData);
             alert("Job added successfully");
 
+            onJobAdded();   // refresh table
+
             setCompany("");
-            setPosition("");
+            setRole("");
             setStatus("Applied");
 
         } catch (error) {
@@ -44,9 +46,9 @@ function JobForm() {
 
             <input
                 type="text"
-                placeholder="Position"
-                value={position}
-                onChange={(e) => setPosition(e.target.value)}
+                placeholder="Role"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
                 required
             />
 

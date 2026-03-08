@@ -1,11 +1,13 @@
 const express = require("express");
 const pool = require("./config/db");
 require("dotenv").config();
+const cors = require("cors");
 
 const jobRoutes = require("./routes/jobRoutes");
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 
 app.use("/jobs", jobRoutes);

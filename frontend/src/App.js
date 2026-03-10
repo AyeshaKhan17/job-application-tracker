@@ -1,37 +1,55 @@
+import React, { useState } from "react";
+import Modal from "react-modal";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+import Sidebar from "./components/Sidebar";
+import Header from "./components/Header";
 import JobForm from "./components/JobForm";
 import JobList from "./components/JobList";
-import { useState } from "react";
+import KanbanBoardPage from "./pages/KanbanBoardPage";
+
+Modal.setAppElement("#root");
 
 function App() {
-
+  const [isOpen, setIsOpen] = useState(false);
   const [refreshJobs, setRefreshJobs] = useState(false);
 
-  const triggerRefresh = () => {
-    setRefreshJobs(!refreshJobs);
+  const handleJobAdded = () => {
+    setRefreshJobs((currentValue) => !currentValue);
+    setIsOpen(false);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <Router>
+      <div className="flex min-h-screen flex-col bg-gray-50">
+        <Header openModal={() => setIsOpen(true)} />
+        <div className="flex flex-1">
+          <Sidebar />
 
-      <div className="flex items-center gap-3 mb-8">
+          <div className="flex-1 p-8">
 
-        <div className="text-3xl">💼</div>
-
-        <h1 className="text-3xl font-bold">
-          Job Application Tracker
-        </h1>
-
-        <div className="bg-white p-6 rounded-xl shadow mb-8">
-          <JobForm onJobAdded={triggerRefresh} />
+            <Routes>
+              <Route path="/" element={<JobList refreshJobs={refreshJobs} />} />
+              <Route
+                path="/board"
+                element={<KanbanBoardPage refreshJobs={refreshJobs} />}
+              />
+            </Routes>
+          </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl shadow">
-          <JobList refreshJobs={refreshJobs} />
-        </div>
+        <Modal
+          isOpen={isOpen}
+          onRequestClose={() => setIsOpen(false)}
+          className="mx-auto mt-32 w-full max-w-lg rounded-xl bg-white p-8 shadow-lg"
+          overlayClassName="fixed inset-0 flex items-start justify-center bg-black/30 p-4"
+        >
+          <h2 className="mb-4 text-xl font-semibold">Add Job Application</h2>
 
+          <JobForm onJobAdded={handleJobAdded} />
+        </Modal>
       </div>
-
-    </div>
+    </Router>
   );
 }
 

@@ -3,210 +3,243 @@ import axios from "axios";
 import DashboardStats from "./DashboardStats";
 import { Building, Briefcase, Calendar, Link, User } from "lucide-react";
 
+
 function JobList({ refreshJobs }) {
 
-const [jobs, setJobs] = useState([]);
+  const [jobs, setJobs] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
 
-useEffect(() => {
-fetchJobs();
-}, [refreshJobs]);
+  useEffect(() => {
+    fetchJobs();
+  }, [refreshJobs]);
 
-const fetchJobs = async () => {
-const res = await axios.get("http://localhost:5000/jobs");
-setJobs(res.data);
-};
+  const fetchJobs = async () => {
+    const res = await axios.get("http://localhost:5000/jobs");
+    setJobs(res.data);
+  };
 
-const deleteJob = async (id) => {
-try {
-await axios.delete(`http://localhost:5000/jobs/${id}`);
-fetchJobs();
-} catch (error) {
-console.error(error);
-}
-};
+  const filteredJobs = jobs.filter((job) => {
 
-const updateStatus = async (id, newStatus) => {
-try {
-await axios.put(`http://localhost:5000/jobs/${id}`, {
-status: newStatus
-});
+    const matchesSearch =
+      job.company.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStatus =
+      statusFilter === "All" || job.status === statusFilter;
+
+    return matchesSearch && matchesStatus;
+
+  });
+
+  const deleteJob = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5000/jobs/${id}`);
+      fetchJobs();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const updateStatus = async (id, newStatus) => {
+    try {
+      await axios.put(`http://localhost:5000/jobs/${id}`, {
+        status: newStatus
+      });
 
 
-  fetchJobs();
-} catch (error) {
-  console.error(error);
-}
+      fetchJobs();
+    } catch (error) {
+      console.error(error);
+    }
 
 
-};
+  };
 
-const renderStatus = (status) => {
+  const renderStatus = (status) => {
 
 
-switch (status) {
+    switch (status) {
 
-  case "Applied":
-    return (
-      <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs">
-        Applied
+      case "Applied":
+        return (
+          <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs">
+            Applied
+          </span>
+        );
+
+      case "Interview":
+        return (
+          <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs">
+            Interview
+          </span>
+        );
+
+      case "Offer":
+        return (
+          <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs">
+            Offer
+          </span>
+        );
+
+      case "Rejected":
+        return (
+          <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs">
+            Rejected
+          </span>
+        );
+
+      default:
+        return status;
+    }
+
+
+  };
+
+  return (<div>
+
+
+    <DashboardStats
+      jobs={jobs}
+      setStatusFilter={setStatusFilter}
+      statusFilter={statusFilter}
+    />
+    <div className="mb-4">
+      <span className="bg-gray-200 px-4 py-1 rounded-full text-sm">
+        Applications History
       </span>
-    );
+    </div>
+    <div className="mb-4 flex justify-between items-center">
 
-  case "Interview":
-    return (
-      <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs">
-        Interview
-      </span>
-    );
+      <input
+        type="text"
+        placeholder="Search company..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="border rounded-lg px-3 py-2 w-64 focus:ring-2 focus:ring-black"
+      />
 
-  case "Offer":
-    return (
-      <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs">
-        Offer
-      </span>
-    );
+      {statusFilter !== "All" && (
+        <button
+          onClick={() => setStatusFilter("All")}
+          className="text-sm text-blue-600"
+        >
+          Clear Filter
+        </button>
+      )}
 
-  case "Rejected":
-    return (
-      <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs">
-        Rejected
-      </span>
-    );
+    </div>
 
-  default:
-    return status;
-}
+    <div className="bg-white rounded-xl shadow-sm border p-4">
 
+      <table className="w-full text-sm">
 
-};
+        <thead className="text-gray-500 border-b">
 
-return ( <div>
+          <tr>
 
+            <th className="p-3 text-left">
+              <Building className="inline w-4 mr-2" />
+              Company
+            </th>
 
-  <DashboardStats jobs={jobs} />
+            <th className="p-3 text-left">
+              <Briefcase className="inline w-4 mr-2" />
+              Role
+            </th>
 
-  <div className="mb-4">
-    <span className="bg-gray-200 px-4 py-1 rounded-full text-sm">
-      Applications History
-    </span>
-  </div>
+            <th className="p-3 text-left">
+              Status
+            </th>
 
-  <div className="bg-white rounded-xl shadow-sm border p-4">
+            <th className="p-3 text-left">
+              <Calendar className="inline w-4 mr-2" />
+              Applied Date
+            </th>
 
-    <table className="w-full text-sm">
+            <th className="p-3 text-left">
+              <Link className="inline w-4 mr-2" />
+              Website
+            </th>
 
-      <thead className="text-gray-500 border-b">
-
-        <tr>
-
-          <th className="p-3 text-left">
-            <Building className="inline w-4 mr-2" />
-            Company
-          </th>
-
-          <th className="p-3 text-left">
-            <Briefcase className="inline w-4 mr-2" />
-            Role
-          </th>
-
-          <th className="p-3 text-left">
-            Status
-          </th>
-
-          <th className="p-3 text-left">
-            <Calendar className="inline w-4 mr-2" />
-            Applied Date
-          </th>
-
-          <th className="p-3 text-left">
-            <Link className="inline w-4 mr-2" />
-            Website
-          </th>
-
-          <th className="p-3 text-left">
-            <User className="inline w-4 mr-2" />
-            Contact
-          </th>
-
-          <th className="p-3 text-left">
-            Actions
-          </th>
-
-        </tr>
-
-      </thead>
-
-      <tbody>
-
-        {jobs.map((job) => (
-
-          <tr key={job.id} className="border-b hover:bg-gray-50 transition">
-
-            <td className="p-3 font-medium">
-              {job.company}
-            </td>
-
-            <td className="p-3">
-              {job.role}
-            </td>
-
-            <td className="p-3">
-
-              <div className="flex items-center gap-2">
-
-                {renderStatus(job.status)}
-
-                <select
-                  className="border rounded px-2 py-1 text-xs"
-                  value={job.status}
-                  onChange={(e) => updateStatus(job.id, e.target.value)}
-                >
-                  <option>Applied</option>
-                  <option>Interview</option>
-                  <option>Offer</option>
-                  <option>Rejected</option>
-                </select>
-
-              </div>
-
-            </td>
-
-            <td className="p-3 text-gray-500">
-              —
-            </td>
-
-            <td className="p-3 text-blue-600 underline">
-              —
-            </td>
-
-            <td className="p-3 text-gray-500">
-              —
-            </td>
-
-            <td className="p-3">
-
-              <button
-                className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                onClick={() => deleteJob(job.id)}
-              >
-                Delete
-              </button>
-
-            </td>
+            <th className="p-3 text-left">
+              Actions
+            </th>
 
           </tr>
 
-        ))}
+        </thead>
 
-      </tbody>
+        <tbody>
 
-    </table>
+          {filteredJobs.map((job) => (
+
+            <tr key={job.id} className="border-b hover:bg-gray-50 transition">
+
+              <td className="p-3 font-medium">
+                {job.company}
+              </td>
+
+              <td className="p-3">
+                {job.role}
+              </td>
+
+              <td className="p-3">
+
+                <div className="flex items-center gap-2">
+
+                  {renderStatus(job.status)}
+
+                  <select
+                    className="border rounded px-2 py-1 text-xs"
+                    value={job.status}
+                    onChange={(e) => updateStatus(job.id, e.target.value)}
+                  >
+                    <option>Applied</option>
+                    <option>Interview</option>
+                    <option>Offer</option>
+                    <option>Rejected</option>
+                  </select>
+
+                </div>
+
+              </td>
+
+              <td className="p-3 text-gray-500">
+                —
+              </td>
+
+              <td className="p-3 text-blue-600 underline">
+                —
+              </td>
+
+              <td className="p-3 text-gray-500">
+                —
+              </td>
+
+              <td className="p-3">
+
+                <button
+                  className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                  onClick={() => deleteJob(job.id)}
+                >
+                  Delete
+                </button>
+
+              </td>
+
+            </tr>
+
+          ))}
+
+        </tbody>
+
+      </table>
+
+    </div>
 
   </div>
 
-</div>
-
-);
+  );
 }
 
 export default JobList;

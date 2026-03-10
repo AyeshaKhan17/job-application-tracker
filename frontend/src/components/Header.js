@@ -1,5 +1,6 @@
 import React from "react";
 import { Briefcase } from "lucide-react";
+import logo from "../assets/logo.png";
 
 function Header({ openModal }) {
 
@@ -9,9 +10,11 @@ function Header({ openModal }) {
         {/* Logo + Title */}
         <div className="flex items-center gap-3">
 
-            <div className="bg-black text-white p-2 rounded-lg">
-                <Briefcase size={20} />
-            </div>
+            <img
+                src={logo}
+                alt="Job Tracker Logo"
+                className="w-20 h-15 object-contain"
+            />
 
             <h1 className="text-xl font-semibold">
                 Job Application Tracker
